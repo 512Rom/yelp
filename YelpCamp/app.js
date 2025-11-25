@@ -1,15 +1,38 @@
 const express = require('express');
-const app = express();
 const path = require('path');
+const mongoose = require('mongoose');
+const Campground = require('./models/campgrounds');
 
-app.set('view engine','ejs')
-app.set('views', path.join)
+mongoose.connect('mongodb+srv://rom512:rGRjB4UybW3J4uEU@learncluster.1gyk8th.mongodb.net/yelp-camp?appName=LearnCluster');
+const app = express();
+
+const db = mongoose.connection;
+db.on("error",console.error.bind(console, "connection error:"));
+db.once("open",()=>{
+    console.log("Database connected");
+});
+
+
+
+
+app.set('view engine','ejs');
+app.set('views', path.join(__dirname,'views')) 
+// __dirname ensures that the path is absolute.
 
 
 app.get('/',(req,res)=>{
-    res.send('Hello from yelp camp.')
+    res.render('home')
+}) 
+
+
+app.get('/makecampground', async(req,res)=>{ 
+    const camp = new Campground({title:'My Backyard', description:'cheap campground'});
+    await camp.save(); // wait for mongoDB to save.
+    res.send(camp)
 })
 
 app.listen(3000,()=>{
     console.log('serving on port 3000')
-})
+})    
+
+
